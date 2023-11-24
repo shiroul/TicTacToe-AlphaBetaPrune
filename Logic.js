@@ -1,8 +1,15 @@
-let turn = 'O'
+import {
+    cpuMove,
+    changeDiffBot
+} from './DumbCPU.js'
+
+let turn = 'X'
 let win = 0
 let board = Array.from(document.getElementsByClassName('box'))
+let toggleSwitch = false
 let boardValue = new Array(9).fill(null);
-let winningTurn = [
+
+export let winningTurn = [
     [0,1,2], 
     [0,4,8], 
     [0,3,6],
@@ -13,51 +20,66 @@ let winningTurn = [
     [6,7,8]]
 
 const startGame = () => {
+    dumbLabel.style.display = "block";
+    smartLabel.style.display = "none";
+    cpuMove(boardValue)
     board.forEach(box => box.addEventListener('click', boxClicked))
 }
 
 restartButton.addEventListener('click', restart)
+toggleInput.addEventListener("change", toggle)
 
-function restart() {
-    boardValue = Array(9).fill(null);
-    board.forEach(element => {
-        element.innerText = ''
-    });
-    turn = 'O'
-    win = 0
+function toggle(){
+    if(toggleSwitch){
+        dumbLabel.style.display = "block";
+        smartLabel.style.display = "none";
+        changeDiffBot(0)
+        toggleSwitch = !toggleSwitch
+        return
+    }
+    smartLabel.style.display = "block";
+    dumbLabel.style.display = "none";
+    changeDiffBot(1)
+    toggleSwitch = !toggleSwitch
 }
 
-function checkWining(){
-    winningTurn.forEach(element => {
-        if(boardValue[element[0]] == turn && boardValue[element[1]] == turn && boardValue[element[2]] == turn){
-            win = 1;
+function restart() {
+    win = 0
+    document.getElementById("restartButton").innerHTML = "RESTART";
+    document.getElementById("Tictactoe").innerHTML = "Tictactoe";
+    for(let i=0;i<9;i++){
+        document.getElementById(i).innerHTML = '';
+    }
+    boardValue = Array(9).fill(null);
+    cpuMove(boardValue)
+}
+
+export function checkWinning(boardValue, mark){
+    for(let i=0;i<8;i++){
+        if(boardValue[winningTurn[i][0]] == mark && boardValue[winningTurn[i][1]] == mark && boardValue[winningTurn[i][2]] == mark){
             return 1
         }
-    });
+    }
+    return 0
 }
 
 function boxClicked(e) {
     if(win==0){
         const id = e.target.id
         if(!boardValue[id]){
-            boardValue[id] = turn;
-            e.target.innerText = turn;
-            if(checkWining() == 1){
-                console.log('banana')
-            }else{
-                console.log('bunana')
-            }
-            console.log('kontol')
-            if(turn == 'O'){
-                turn = 'X';
-                document.getElementById("playerTurn").innerHTML = turn + ' TURN';
+            boardValue[id] = 'X';
+            e.target.innerText = 'X';
+            if(checkWinning(boardValue, 'X')){
+                document.getElementById("Tictactoe").innerHTML = "PLAYER WIN!";
+                win = 1
                 return
             }
-            turn = 'O';
-            document.getElementById("playerTurn").innerHTML = turn + ' TURN';
-            return
-        } 
-    }
+            cpuMove(boardValue)
+        }
+    } 
 }
 
+export function changeWin(){
+    win = 1
+}
 startGame()
